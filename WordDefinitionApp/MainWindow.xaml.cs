@@ -24,15 +24,14 @@ namespace WordDefinitionApp
         private readonly FindDefinitionQueryDispatcher dispatcher;
         private delegate void UpdateEvent(ElapsedEventArgs e);
         private static string inputWord = String.Empty;
-       // public DictServiceSoapClient dictServiceClient { get; set; }
+
         public MainWindow()
         {
             timer.AutoReset = true;
             timer.Elapsed += Timer_Elapsed;
             InitializeComponent();
             txtDefinition.Focusable = true;
-            //   dictServiceClient = new DictServiceSoapClient(EndpointConfigurationName);
-            //  dictServiceClient.Open();
+
             kernel = new StandardKernel();
             Register.RegisterDependencies(kernel);
 
@@ -63,6 +62,7 @@ namespace WordDefinitionApp
                 txtDefinition.Text = "Input the word to definition!";
                 return;
             }
+
             btnCopyDefinition.Content = BTN_NAME;
             pbLoading.Visibility = Visibility.Visible;
             timer.Enabled = true;
@@ -75,7 +75,6 @@ namespace WordDefinitionApp
         {
             FindDefinitionQuery query = new FindDefinitionQuery(inputWord);         
             WordDefinition wordDefinition = await dispatcher.Execute(query);
-                //= await dictServiceClient.DefineAsync(inputWord);
             Definition[] definitions = wordDefinition.Definitions;
             btnGetDefinition.IsEnabled = true;
             timer.Stop();
