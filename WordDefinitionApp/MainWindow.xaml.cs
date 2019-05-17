@@ -1,11 +1,12 @@
 ﻿using System.Text;
 using System.Windows;
+using System;
+using System.Timers;
+using Ninject;
 
 namespace WordDefinitionApp
 {
     using DictServiceReference;
-    using System;
-    using System.Timers;
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -17,19 +18,25 @@ namespace WordDefinitionApp
         private const string COLON = ": ";
         private const string BTN_NAME = "Copy Definition";
         private const string BTN_NAME_DONE = "Copied!";
-        private const string EndpointConfigurationName = "DictServiceSoap";
+        
         private readonly Timer timer = new Timer(1);
+        private readonly StandardKernel kernel;
+        private readonly FindDefinitionQueryDispatcher dispatcher;
         private delegate void UpdateEvent(ElapsedEventArgs e);
         private static string inputWord = String.Empty;
-        public DictServiceSoapClient dictServiceClient { get; set; }
+       // public DictServiceSoapClient dictServiceClient { get; set; }
         public MainWindow()
         {
             timer.AutoReset = true;
             timer.Elapsed += Timer_Elapsed;
             InitializeComponent();
             txtDefinition.Focusable = true;
-            dictServiceClient = new DictServiceSoapClient(EndpointConfigurationName);
-            dictServiceClient.Open();
+            //   dictServiceClient = new DictServiceSoapClient(EndpointConfigurationName);
+            //  dictServiceClient.Open();
+            kernel = new StandardKernel();
+            Register.RegisterDependencies(kernel);
+
+            dispatcher = new FindDefinitionQueryDispatcher(kernel);
             System.Windows.Input.FocusManager.SetFocusedElement(this, tbxWord);
         }
 
@@ -66,7 +73,9 @@ namespace WordDefinitionApp
 
         private async void GetDefinition(string inputWord)
         {
-            WordDefinition wordDefinition = await dictServiceClient.DefineAsync(inputWord);
+            FindDefinitionQuery query = new FindDefinitionQuery(inputWord);         
+            WordDefinition wordDefinition = await dispatcher.Execute(query);
+                //= await dictServiceClient.DefineAsync(inputWord);
             Definition[] definitions = wordDefinition.Definitions;
             btnGetDefinition.IsEnabled = true;
             timer.Stop();
