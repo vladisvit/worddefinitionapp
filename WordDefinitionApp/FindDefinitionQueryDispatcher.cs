@@ -21,8 +21,8 @@ namespace WordDefinitionApp
                 throw new ArgumentNullException("query");
             }
 
-            var f = new Ninject.Parameters.ConstructorArgument("endpointConfigurationName", EndpointConfigurationName);
-            FindDefinitionQueryHandler handler = _kernel.Get<FindDefinitionQueryHandler>(f);
+            var construtorArgument = new Ninject.Parameters.ConstructorArgument("endpointConfigurationName", EndpointConfigurationName);
+            var handler = _kernel.Get<IWordDefQueryHandler<FindDefinitionQuery, Task<WordDefinition>>>(construtorArgument);
             if (handler == null)
             {
                 throw new WordDefQueryHandlerNotFoundException(typeof(FindDefinitionQueryHandler));
